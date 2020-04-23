@@ -1,0 +1,1 @@
+使用linux下自带的logrotate进行切分

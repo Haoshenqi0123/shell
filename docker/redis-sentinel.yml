@@ -1,0 +1,42 @@
+version: '2.1'
+services:
+  master:
+    image: registry.cn-hangzhou.aliyuncs.com/boshen-ns/redis:3
+    container_name: master
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./data/master:/data
+    command: redis-server --port 16379
+  slave1:
+    image: registry.cn-hangzhou.aliyuncs.com/boshen-ns/redis:3
+    container_name: slave1
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./data/slave1:/data
+    command: redis-server --port 16380 --slaveof 172.16.1.11 16379
+  slave2:
+    image: registry.cn-hangzhou.aliyuncs.com/boshen-ns/redis:3
+    container_name: slave2
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./data/slave2:/data
+    command: redis-server --port 16381 --slaveof 172.16.1.11 16379
+  sentinel-1:
+    image: registry.cn-hangzhou.aliyuncs.com/boshen-ns/redis-sentinel:3
+    container_name: sentinel-1
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./sentinel-1.conf:/etc/redis/sentinel.conf
+      - ./data/sentinel-1:/data
+  sentinel-2:
+    image: registry.cn-hangzhou.aliyuncs.com/boshen-ns/redis-sentinel:3
+    container_name: sentinel-2
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./sentinel-2.conf:/etc/redis/sentinel.conf
+      - ./data/sentinel-2:/data

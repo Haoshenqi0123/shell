@@ -1,0 +1,5 @@
+docker run --name nexus2 -p 8381:8081 -v /root/docker/nexus-data:/nexus-data -d sonatype/nexus3
+
+
+
+

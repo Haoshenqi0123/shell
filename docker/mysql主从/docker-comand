@@ -1,0 +1,40 @@
+
+docker run -p 3310:3306  --name mysql_master -v /root/docker/mysql-master/data:/var/lib/mysql -v /root/docker/mysql-master/conf/mysql_master.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf -e MYSQL_ROOT_PASSWORD=YOURPASSWD   --restart always -d mysql:5.7
+docker run -p 3311:3306  --name mysql_slave1 -v /root/docker/mysql-slave1/data:/var/lib/mysql -v /root/docker/mysql-slave1/conf/mysql_slave1.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf -e MYSQL_ROOT_PASSWORD=YOURPASSWD   --restart always -d mysql:5.7
+
+
+
+mysql -uroot -p'YOURPASSWD'
+
+YOURPASSWD
+
+CREATE TABLE `test` (
+`id`  int NOT NULL ,
+`name`  varchar(255) NULL ,
+PRIMARY KEY (`id`)
+)
+;
+
+
+# 查询容器ip
+docker inspect --format='{{.NetworkSettings.IPAddress}}' 容器名称|容器id
+
+[master]
+docker exec -it mysql_master /bin/bash
+mysql -uroot -p'YOURPASSWD'
+create database aa;
+CREATE USER 'slave'@'%' IDENTIFIED BY 'YOURPASSWD';
+GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'slave'@'%'; 
+show master status;  
+
+[slave1]
+docker exec -it mysql_slave1 /bin/bash
+mysql -uroot -p'YOURPASSWD'
+create database aa;
+# master_log_file 对应 File
+# master_log_pos 对应 Position
+change master to master_host='172.17.0.2', master_user='slave', master_password='YOURPASSWD', master_port=3310, master_log_file='edu-mysql-bin.000003', master_log_pos=563, master_connect_retry=10;  
+
+show slave status;  
+start slave;  
+show slave status;  

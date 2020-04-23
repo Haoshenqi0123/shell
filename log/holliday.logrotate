@@ -1,0 +1,8 @@
+/apprun/holliday/log/*.log {
+    create 0664 root root
+    daily
+    rotate 10
+    missingok
+    notifempty
+    compress
+}
