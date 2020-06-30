@@ -1,0 +1,86 @@
+version: '3.3'
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:1.9.7
+    links: 
+      - app-service:app-service
+      - aliyun:aliyun
+      - yingshiyun:yingshiyun
+    ports: 
+      - 80:80
+      - 10443:443
+    volumes: 
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/log:/var/log/nginx
+    depends_on: 
+      - app-service
+      - aliyun
+      - yingshiyun
+    
+  # 指定服务名称
+  mysql:
+    # 指定服务使用的镜像
+    image: localhost:5000/zsmysql:0.0.1-SNAPSHOT
+    # 指定容器名称
+    container_name: mysql
+    # 指定服务运行的端口
+    ports:
+      - 3316:3306
+    # 指定容器中需要挂载的文件
+    volumes:
+      - ./mysql/logs:/var/log/mysql
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/conf:/etc/mysql
+    # 指定容器的环境变量
+    environment:
+      - MYSQL_ROOT_PASSWORD=ZhangShaoMysql2020
+  # 指定服务名称
+  redis:
+    container_name: redis
+    image: redis:4.0.14
+    environment:
+        - TZ=Asia/Shanghai
+    ports:
+        - "6379:6379"
+    volumes:
+        - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf
+        - ./data/redis/:/data/
+        - ./log/redis/:/var/log/redis/
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass a42b8529eb3786bb7f51b6b1eae7201c
+  app-service:
+    image: localhost:5000/app-service:4.0.0-SNAPSHOT
+    container_name: app-service
+    volumes:
+        - ./log/:/logs
+    expose:
+        - "8071"
+    ports: 
+        - "8071:8071"
+    depends_on:
+        - redis
+        - mysql
+  aliyun:
+    image: localhost:5000/aliyun:0.0.1-SNAPSHOT
+    container_name: aliyun 
+    volumes:
+        - ./log/:/logs
+    expose:
+        - "8072"
+    ports: 
+        - "8072:8072"
+    depends_on:
+        - redis
+        - mysql
+  yingshiyun:
+    image: localhost:5000/yingshiyun:0.0.1-SNAPSHOT
+    container_name: yingshiyun
+    volumes
+        - ./log/:/logs
+    expose:
+        - "8073"
+    ports: 
+        - "8073:8073"
+    depends_on:
+        - redis
+        - mysql
