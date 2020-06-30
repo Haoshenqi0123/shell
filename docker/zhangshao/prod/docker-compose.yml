@@ -84,3 +84,15 @@ services:
     depends_on:
         - redis
         - mysql
+  manager:
+    image: localhost:5000/manager:2.0-RELEASE
+    container_name: manager
+    volumes:
+        - ./log/:/logs
+    expose:
+        - "8070"
+    ports: 
+        - "8070:8070"
+    depends_on:
+        - redis
+        - mysql
